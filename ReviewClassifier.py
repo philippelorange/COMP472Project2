@@ -120,12 +120,28 @@ def classify_documents(docs, library):
     return predicted_labels
 
 
-def accuracy(true_labels, guessed_labels):
+def accuracy(true_labels, guessed_labels, eval_docs):
     correct = 0
-    for true, guessed in zip(true_labels, guessed_labels):
+    pos_correct = 0
+    neg_correct = 0
+
+    total_pos = 0
+    total_neg = 0
+    for true, guessed, doc in zip(true_labels, guessed_labels, eval_docs):
+        if true == "pos":
+            total_pos += 1
+        else:
+            total_neg += 1
+
         if true == guessed:
             correct += 1
-    return correct / len(true_labels)
+            if true == "pos":
+                pos_correct += 1
+            else:
+                neg_correct += 1
+        else:
+            print(true, guessed, doc, sep=", ")
+    return correct / len(true_labels), (pos_correct / total_pos), (neg_correct / total_neg)
 
 
 # ---------------- start of main ---------------------- #
@@ -140,4 +156,7 @@ trained_library = train_nb(train_docs, train_labels)
 
 predicted = classify_documents(eval_docs, trained_library)
 
-print(accuracy(eval_labels, predicted))
+res = accuracy(eval_labels, predicted, eval_docs)
+print("Overall accuracy:", res[0])
+print("Positive accuracy:", res[1])
+print("Negative accuracy:", res[2])
